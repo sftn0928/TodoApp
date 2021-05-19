@@ -1,8 +1,13 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:todo/add_todo.dart';
-import 'package:todo/todo_App.dart';
+import 'package:todo/edit_todo.dart';
+import 'package:todo/main_model.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -10,17 +15,60 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // 右上に表示される"debug"ラベルを消す
-      debugShowCheckedModeBanner: false,
       title: 'Todo App',
       theme: ThemeData(
         primarySwatch: Colors.indigo,
       ),
-      home: TodoApp(),
-      // ルーティング名称に対して、表示されるページを作成しウィジェットを設定
-      // routes: <String, WidgetBuilder> {
-      //   '/home': (BuildContext context) => new TodoApp(),
-      // },
+      home: MainPage(),
+    );
+  }
+}
+
+class MainPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<MainModel>(
+      create: (_) => MainModel()..getTodoListRealtime(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Todo一覧画面'),
+        ),
+        body: Consumer<MainModel>(builder: (context, model, child) {
+          final todoList = model.todoList;
+          return ListView(
+              children: todoList
+                  .map((todo) => ListTile(
+                        title: Text(todo.title),
+                        leading: IconButton(
+                          icon: Icon(Icons.check),
+                          onPressed: () async {
+                            await model.deleteTodoList(todo);
+                          },
+                        ),
+                        trailing: IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () async {
+                            final updateText = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditTodo(),
+                              ),
+                            );
+                            await model.updateTodoList(todo, updateText);
+                          },
+                        ),
+                      ))
+                  .toList());
+        }),
+        floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.add),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddTodo()),
+              );
+            }),
+      ),
     );
   }
 }

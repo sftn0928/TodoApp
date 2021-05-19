@@ -1,56 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:todo/main_model.dart';
+import 'package:todo/todo.dart';
 
-class EditTodo extends StatefulWidget {
-  @override
-  _EditTodoState createState() => _EditTodoState();
-}
-
-class _EditTodoState extends State<EditTodo> {
-  //入力したものを扱うコントローラ
+class EditTodo extends StatelessWidget {
   var _inputTextController = TextEditingController();
-
-  String _inputText = '';
-
-  void setText(String value) {
-    setState(() {
-      _inputText = value;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("TODO変更画面"),
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 200, 20, 0),
-              child: TextField(
-                maxLength: 10,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: '変更後の項目を入力',
+    return ChangeNotifierProvider<MainModel>(
+        create: (_) => MainModel(),
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Todo編集画面'),
+          ),
+          body: Consumer<MainModel>(builder: (context, model, child) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 200, 20, 0),
+                  child: TextField(
+                    maxLength: 10,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: '変更後',
+                    ),
+                    controller: _inputTextController,
+                  ),
                 ),
-                controller: _inputTextController,
-              ),
-            ),
-            RaisedButton(
-                child: Text("変更する"),
-                color: Colors.white,
-                shape: const StadiumBorder(
-                  side: BorderSide(color: Colors.indigo),
-                ),
-                onPressed: () {
-                  setText(_inputTextController.text);
-                  // テキストフィールドの内容をクリア
-                  _inputTextController.clear();
-                  if (_inputText != '') {
-                    Navigator.pop(context, _inputText);
-                  }
-                }),
-          ],
+                RaisedButton(
+                    child: Text("追加する"),
+                    color: Colors.white,
+                    shape: const StadiumBorder(
+                      side: BorderSide(color: Colors.indigo),
+                    ),
+                    onPressed: () {
+                      if (_inputTextController.text != '') {
+                        Navigator.pop(context, _inputTextController.text);
+                      }
+                    }),
+              ],
+            );
+          }),
         ));
   }
 }
