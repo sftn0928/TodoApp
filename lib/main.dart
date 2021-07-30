@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:todo/add_todo.dart';
 import 'package:todo/edit_todo.dart';
 import 'package:todo/main_model.dart';
+import 'package:todo/sign_in.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.indigo,
       ),
-      home: MainPage(),
+      home: SignIn(),
     );
   }
 }

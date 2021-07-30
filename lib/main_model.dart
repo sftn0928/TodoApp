@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:todo/todo.dart';
 
@@ -15,7 +16,10 @@ class MainModel extends ChangeNotifier {
   // }
 
   void getTodoListRealtime() {
+    final currentUser = FirebaseAuth.instance.currentUser;
     final snapshots = FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
         .collection("todoList")
         .orderBy("createdAt", descending: true)
         .snapshots();
@@ -28,7 +32,11 @@ class MainModel extends ChangeNotifier {
   }
 
   Future addTodoList(String inputText) async {
-    final collection = FirebaseFirestore.instance.collection('todoList');
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final collection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('todoList');
     await collection.add({
       'title': inputText,
       'createdAt': Timestamp.now(),
@@ -36,20 +44,37 @@ class MainModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Future addTodoList(String inputText) async {
+  //   final collection = FirebaseFirestore.instance.collection('todoList');
+  //   await collection.add({
+  //     'title': inputText,
+  //     'createdAt': Timestamp.now(),
+  //   });
+  //   notifyListeners();
+  // }
+
   void reload() {
     notifyListeners();
   }
 
   Future deleteTodoList(Todo todo) async {
-    final collection = FirebaseFirestore.instance.collection('todoList');
+    final currentUser = FirebaseAuth.instance.currentUser;
     final docID = todo.documentReference.id;
+    final collection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('todoList');
     await collection.doc(docID).delete();
     notifyListeners();
   }
 
   Future updateTodoList(Todo todo, String updateText) async {
-    final collection = FirebaseFirestore.instance.collection('todoList');
+    final currentUser = FirebaseAuth.instance.currentUser;
     final docID = todo.documentReference.id;
+    final collection = FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('todoList');
     await collection.doc(docID).update({
       'title': updateText,
       'createdAt': Timestamp.now(),
